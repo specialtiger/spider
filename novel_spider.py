@@ -11,12 +11,12 @@ import sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
-k_chapter = 2
+k_chapter = 5
 k_urlopen_timeout = 5
 k_fetch_interval = 1
 
 def r_o_html(url):
-    print('r_o_html begin')
+    # print('r_o_html begin')
 
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; Win64; x64; rv:55.0) Gecko/20100101 Firefox/55.0'}
 
@@ -29,43 +29,37 @@ def r_o_html(url):
             html = response.read().decode('GBK')
             print('NET_STATUS is good')
             print('r_o_html end')
-            print(html)
             return html
         except socket.timeout:
             print('NET_STATUS is not good')
             NET_STATUS = False
 
-def re_findall(re_string, operation, html):
-
+def re_findall(re_string, html):
     print('re_findall begin')
     pattern = re.compile(re_string, re.I)
-
-    if operation == 'findall':
-        result = pattern.findall(html)
-    else:
-        print('this operation is invalid')
-        exit(-1)
-
+    result = pattern.findall(html)
     print('re_findall end')
     return result
 
 
 if __name__ == '__main__':
-    url_base = 'http://www.7kankan.la/book/1/'
+    url_base = 'http://www.piaotian.com/html/8/8337/'
 
-    html = r_o_html(url_base)
+    html = r_o_html(url_base+'index.html')
 
-    findall_title = re_findall(r'<title>(.+?)</title>', 'findall', html)
+    r_titles = re_findall(r'<h1>(.*)</h1>', html)
+    novel_title = r_titles[0]
+    print(r_titles)
+    # url, title
+    # findall_chapter = re_findall(r'<dd class="col-md-3"><a href=[\',"](.+?)[\',"] title=[\',"](.+?)[\',"]>', html)
+    findall_chapter = re_findall(r'<li><a href="(.*)">(.*)</a></li>', html)
 
-    findall_chapter = re_findall(r'<dd class="col-md-3"><a href=[\',"](.+?)[\',"] title=[\',"](.+?)[\',"]>', 'findall', html)
-
-    # with open(findall_title[0] + '.txt', 'w+', encoding='utf-8') as open_file:
-    with open(findall_title[0] + '.txt', 'w+') as open_file:
-        print('article文件打开', findall_chapter)
+    with open(novel_title + '.txt', 'w') as open_file:
+        print('chapters count:', len(findall_chapter))
         end = len(findall_chapter)
         start = max(0, end - k_chapter)
         for i in range(start, end):
-            print('第' + str(i) + '章')
+            print('第' + str(i) + '章', findall_chapter[i])
 
             open_file.write('\n\n\t' + findall_chapter[i][1] + '\n --------------------------------------------------------------------- \n')
 
@@ -73,19 +67,13 @@ if __name__ == '__main__':
 
             html_chapter = r_o_html(url_chapter)
 
-            findall_article = re_findall(r'&nbsp;&nbsp;&nbsp;&nbsp;(.+?)<br />', 'findall', html_chapter)
-
+            findall_article = re_findall(r'&nbsp;&nbsp;&nbsp;&nbsp;(.+?)<br />', html_chapter)
             findall_article_next = findall_chapter[i][0].replace('.html', '_2.html')
 
             url_nextchapter = url_base + findall_article_next
 
-            html_nextchapter = r_o_html(url_nextchapter)
-
-            if html_nextchapter:
-                findall_article.extend(re_findall(r'&nbsp;&nbsp;&nbsp;&nbsp;(.+?)<br />', 'findall', html_nextchapter))
-
-                for text in findall_article:
-                    open_file.write(text + '\n')
+            for text in findall_article:
+                open_file.write(text + '\n')
 
             time.sleep(1)
 

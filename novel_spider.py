@@ -29,7 +29,6 @@ def r_o_html(url):
             html = response.read().decode('GBK')
             print('NET_STATUS is good')
             print('r_o_html end')
-            print(html)
             return html
         except socket.timeout:
             print('NET_STATUS is not good')
@@ -49,25 +48,46 @@ def re_findall(re_string, operation, html):
     print('re_findall end')
     return result
 
+def write_html_head(open_file):
+    head = '''<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width"/>
+    <meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <style>
+        body {
+            background-color: #e4ebf1;
+        }
+    </style>
+
+</head>'''
+    open_file.write(head+'\n')
+
+def write_html_tail(open_file):
+    open_file.write('</html>\n')
 
 if __name__ == '__main__':
     url_base = 'http://www.7kankan.la/book/1/'
 
     html = r_o_html(url_base)
 
-    findall_title = re_findall(r'<title>(.+?)</title>', 'findall', html)
+    findall_title = re_findall(r'<h1 class="bookTitle">(.*)</h1>', 'findall', html)
 
     findall_chapter = re_findall(r'<dd class="col-md-3"><a href=[\',"](.+?)[\',"] title=[\',"](.+?)[\',"]>', 'findall', html)
 
     # with open(findall_title[0] + '.txt', 'w+', encoding='utf-8') as open_file:
-    with open(findall_title[0] + '.txt', 'w+') as open_file:
+    with open('novel.html', 'w') as open_file:
+        write_html_head(open_file)
         print('article文件打开', findall_chapter)
         end = len(findall_chapter)
         start = max(0, end - k_chapter)
+        open_file.write("<p>")
         for i in range(start, end):
             print('第' + str(i) + '章')
 
-            open_file.write('\n\n\t' + findall_chapter[i][1] + '\n --------------------------------------------------------------------- \n')
+            open_file.write('<h2>' + findall_chapter[i][1] + '</h2>\n')
 
             url_chapter = url_base + findall_chapter[i][0]
 
@@ -85,8 +105,11 @@ if __name__ == '__main__':
                 findall_article.extend(re_findall(r'&nbsp;&nbsp;&nbsp;&nbsp;(.+?)<br />', 'findall', html_nextchapter))
 
                 for text in findall_article:
-                    open_file.write(text + '\n')
+                    open_file.write('<br>&nbsp;&nbsp;&nbsp;&nbsp;%s<br />\n'%text)
 
             time.sleep(1)
+        open_file.write("</p>\n")
+
+        write_html_tail(open_file)
 
     print('文件写入完毕')

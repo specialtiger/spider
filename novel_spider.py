@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
 Created on Fri Aug 11 16:31:42 2017
@@ -78,9 +79,8 @@ if __name__ == '__main__':
     findall_chapter = re_findall(r'<dd class="col-md-3"><a href=[\',"](.+?)[\',"] title=[\',"](.+?)[\',"]>', 'findall', html)
 
     # with open(findall_title[0] + '.txt', 'w+', encoding='utf-8') as open_file:
-    with open('novel.html', 'w') as open_file:
+    with open('index.html', 'w') as open_file:
         write_html_head(open_file)
-        print('article文件打开', findall_chapter)
         end = len(findall_chapter)
         start = max(0, end - k_chapter)
         open_file.write("<p>")

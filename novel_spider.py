@@ -56,7 +56,7 @@ def write_html_head(open_file):
     <style>
         body {
             background-color: #e4ebf1;
-            font-size: 1.5em;
+            font-size: 1.3em;
         }
     </style>
 
@@ -77,19 +77,18 @@ if __name__ == '__main__':
     # url, title
     findall_chapter = re_findall(r'<li><a href="(.*)">(.*)</a></li>', html)
 
-    # with open(findall_title[0] + '.txt', 'w+', encoding='utf-8') as open_file:
     with open('index.html', 'w') as open_file:
         write_html_head(open_file)
         end = len(findall_chapter)
         start = max(0, end - k_chapter)
         for i in range(start, end):
-            open_file.write('<u>' + findall_chapter[i][1] + '</u>\n')
+            open_file.write('<a href="#%d">'%i + findall_chapter[i][1] + '</a>\n')
 
         open_file.write("<p>")
         for i in range(start, end):
             print('第' + str(i) + '章')
 
-            open_file.write('<h2>' + findall_chapter[i][1] + '</h2>\n')
+            open_file.write('<h2><a id=%d>'%i + findall_chapter[i][1] + '</a></h2>\n')
 
             url_chapter = url_base + findall_chapter[i][0]
 

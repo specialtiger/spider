@@ -1,3 +1,7 @@
+##轻量级爬小说app
+
+主要方法:vps定时执行爬虫脚本定时生成网页, 手机app打开这个网页
+
 ## 爬虫脚本
 
 项目地址：https://github.com/specialtiger/spider
